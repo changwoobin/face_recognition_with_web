@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script async src="https://docs.opencv.org/master/opencv.js" onload="onOpenCvReady();"></script>
+  </head>
+  <body>
+    <h1>OpenCV.js Face Detection</h1>
+    <video id="video" width="640" height="480" autoplay></video>
+    <canvas id="canvas" width="640" height="480"></canvas>
+
+    <script>
+      function onOpenCvReady() {
+        let src = new cv.Mat(480, 640, cv.CV_8UC4);
+        let dst = new cv.Mat(480, 640, cv.CV_8UC1);
+        let faces = new cv.RectVector();
+        let classifier = new cv.CascadeClassifier();
+        
+        classifier.load('https://docs.opencv.org/master/haarcascade_frontalface_default.xml');
+
+      
+        let cap = new cv.VideoCapture(document.getElementById('video'));
+        setInterval(() => {
+          cap.read(src);
+          cv.cvtColor(src, src, cv.COLOR_RGBA2GRAY);
+          classifier.detectMultiScale(src, faces);
+          
+          for (let i = 0; i < faces.size(); ++i) {
+            let face = faces.get(i);
+            let point1 = new cv.Point(face.x, face.y);
+            let point2 = new cv.Point(face.x + face.width, face.y + face.height);
+            cv.rectangle(src, point1, point2, [255, 0, 0, 255], 2, cv.LINE_AA, 0);
+          }
+
+          cv.imshow('canvas', src);
+          src.delete(); dst.delete(); faces.delete();
+        }, 50);
+      }
+    </script>
+  </body>
+</html>
